@@ -9,17 +9,17 @@ plugins that offer Markdown alternatives. It should even work if applied to regu
 
 ##Installation##
 
-With composer:
+###With composer###
 
     php composer.phar require infostreams/snippets:*
 
-Download:
+###Download###
 
 * Install [Phile](https://github.com/PhileCMS/Phile)
 * Clone this repo into plugins/infostreams/snippets
 
 
-##Activation##
+###Activation###
 
 After you have installed the plugin. You need to add the following line to your config.php file:
 

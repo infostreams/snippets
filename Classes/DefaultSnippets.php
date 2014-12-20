@@ -89,7 +89,18 @@ class DefaultSnippets implements Snippets {
 	 * Implements the 'youtube' snippet
 	 */
 	public function youtube($link, $width=480, $height=360) {
-		return "<iframe width=\"$width\" height=\"$height\" src=\"//www.youtube.com/embed/$link\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
+		$url = parse_url($link);
+		parse_str($url['query'], $query);
+		$is_playlist = array_key_exists('list', $query);
+		if ($is_playlist) {
+			$playlist_id = $query['list'];
+			$embed_url = "//www.youtube.com/embed?listType=playlist&list=$playlist_id";
+		} else {
+			$video_id = $query['v'];
+			$embed_url = "//www.youtube.com/embed/$video_id";
+		}
+
+		return "<iframe width=\"$width\" height=\"$height\" src=\"$embed_url\" frameborder=\"0\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>";
 	}
 
 	/**

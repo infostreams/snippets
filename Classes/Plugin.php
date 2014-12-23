@@ -73,9 +73,10 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 			$tags = array_keys($snippets);
 
 			$matches = array();
-			$regexp = '#\((' . implode($tags, '|') . ')\:\s(.*?)\)#i';
+			$regexp = '#\((' . implode($tags, '|') . ')\:\s?(.*?)\)#ims'; // options: case independent, multi-line, and '/s' includes newline
 
 			if ($count = preg_match_all($regexp, $content, $matches) > 0) {
+
 				$tags = $matches[1];
 				foreach ($tags as $i=>$tag) {
 					$full_snippet = $matches[0][$i];
@@ -92,7 +93,6 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 	}
 
 	protected function render($callable, $attributes) {
-
 		// extract parameter names from the provided function
 		if (is_array($callable)) {
 			$f = new \ReflectionMethod($callable[0], $callable[1]);
@@ -106,19 +106,28 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 		$function_params = $f->getParameters();
 		$parameter_names = array_map(function($f) { return $f->name; }, $function_params);
 
+		// remove any newlines from the attributes to maintain sanity
+		$attributes = strtr($attributes, "\r\n", '  ');
+
 		// first parameter is the one directly after the tag name,
 		// which means we don't have to look for it
 		$look_for = array_slice($parameter_names, 1);
 
 		// extract parameter values from the provided attributes
-		$regexp = '#(' . implode($look_for, '|') . '):#i';
-		$matches = preg_split($regexp, $attributes, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		if (count($look_for)>0) {
+			$regexp = '#(' . implode($look_for, '|') . '):#ims';
+			$matches = preg_split($regexp, $attributes, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+		} else {
+			// no additional parameters (except for the required first parameter) were provided
+			// -> '$matches' is everything that comes after the initial tag name
+			$matches = array($attributes);
+		}
 
-		// collect them in a 'parameter name': 'parameter value' array
+		// collect the matched parameters in a 'parameter name': 'parameter value' array
 		array_unshift($matches, $parameter_names[0]);
 		$params_unsorted = array();
 		for ($i=0; $i<count($matches); $i+=2) {
-			$params_unsorted[$matches[$i]] = $matches[$i+1];
+			$params_unsorted[$matches[$i]] = $this->parseValue($matches[$i+1]);
 		}
 
 		// put them in the order as they are used in the function,
@@ -126,7 +135,11 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 		$params_sorted = array();
 		foreach ($function_params as $i=>$p) {
 			if (array_key_exists($p->name, $params_unsorted)) {
-				$params_sorted[$i] = trim($params_unsorted[$p->name]);
+				$value = $params_unsorted[$p->name];
+				if (is_string($value)) {
+					$value = trim($value);
+				}
+				$params_sorted[$i] = $value;
 			} else {
 				// php doesn't allow 'skipping' function parameters,
 				// so if a value is not provided, try to get its default value
@@ -141,6 +154,16 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 
 		// finally call the function with these parameters
 		return call_user_func_array($callable, $params_sorted);
+	}
+
+	private function parseValue($value) {
+		$value = trim($value);
+		$first = $value[0];
+		$last = $value[max(0, strlen($value)-1)];
+		if (($first == '[' && $last==']') || ($first == '{' && $last=='}')) {
+			return json_decode($value);
+		}
+		return $value;
 	}
 
 	private function addSnippetClass(Snippets $snippet) {

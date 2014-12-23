@@ -60,7 +60,7 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 	public function get($snippet=null) {
 		if (!is_null($snippet)) {
 			if (array_key_exists($snippet, $this->snippets)) {
-				return $snippets[$snippet];
+				return $this->snippets[$snippet];
 			}
 			return false;
 		}

@@ -28,6 +28,10 @@ After you have installed the plugin. You need to add the following line to your 
 
 ##Supported syntax##
 
+**General note**: snippet tags can be specified over multiple lines, and attribute values can
+be scalar values (strings or integers) or can be JSON objects - in which case they will be parsed
+as such.
+
 ###Links###
 By default, it supports links to external sites and to pages on your own site:
 
@@ -249,10 +253,10 @@ Then, add the 'skype' snippet to the Snippets config:
 ##Using a Snippets class##
 
 It is also possible to define a class with multiple Snippets and add them all at once.
-First, define your class, and make sure it implements the ```\Phile\Plugin\Infostreams\Snippets\Snippets```
-interface. Then, make sure that it is included by PhileCMS.
+First, define your class, and make sure it extends the ```\Phile\Plugin\Infostreams\Snippets\Snippets```
+class (which gives you access to some common functionality). Then, make sure that it is included by PhileCMS.
 
-    class MySnippets implements \Phile\Plugin\Infostreams\Snippets\Snippets {
+    class MySnippets extends \Phile\Plugin\Infostreams\Snippets\Snippets {
         public function skype($name, $action="call", $text=null) {
             if (is_null($text)) {
                 $text = "Contact '$name' on Skype";
@@ -284,4 +288,3 @@ This plugin is an open source (MIT licensed) re-implementation of Kirbytext.
 It correctly parses *most* of the syntax of [Kirbytext](http://getkirby.com/docs/content/text),
 even though the resulting HTML might differ. There is no guarantee of compatibility between the
 two, although a high level of interoperability is one of the design goals.
-

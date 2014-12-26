@@ -26,14 +26,36 @@ After you have installed the plugin. You need to add the following line to your 
     $config['plugins']['infostreams\\snippets'] = array('active' => true);
 
 
+##What it does##
+
+With this plugin you can include pre-defined HTML snippets in your Markdown. This means you can
+write things like:
+
+    This is some text before I introduce you to the main point of this example, the YouTube video
+    that I want to include here:
+
+    (youtube: https://www.youtube.com/watch?v=mSB71jNq-yQ)
+
+    In case you can't see that video, you can have a look at the slideshow that I'll include for
+    your pleasure: (slideshow: [images/a.jpg, images/b.jpg, images/c.jpg] heading: Awesome slideshow)
+
+    I've taken these images from (link: site.com text: this site)
+
+Basically it extends standard Markdown syntax to make it easier to write interactive web pages
+with more than just basic formatting. Markdown is great for adding headings, bold text, links and
+lists to your page, but it has almost no provisions for adding other elements to your page. With
+Snippets you can add these elements easily. You can use one of the many included snippets, or
+you can easily define new ones yourself.
+
+
 ##Supported syntax##
 
 **General note**: snippet tags can be specified over multiple lines, and attribute values can
-be scalar values (strings or integers) or can be JSON objects - in which case they will be parsed
-as such.
+be scalar values (strings or integers) or lists (arrays) of values - in which case they will be
+parsed as such.
 
 ###Links###
-By default, it supports links to external sites and to pages on your own site:
+You can link to external sites and to pages on your own site:
 
     (link: cnn.com)
     (link: products/mastergrill5000)
@@ -230,7 +252,6 @@ This would produce the following HTML:
 
     <a href='skype:my.account.on.skype?chat'>Chat to me on Skype!</a>
 
-
 ##Using existing functions##
 
 First, define your snippet in a class somewhere, and make sure it gets included:
@@ -282,9 +303,82 @@ by adding the following code to PhileCMS's configuration file:
         'yet_another_snippet' => array(new MyOtherClass(), 'method')
     );
 
-###Kirbytext###
-This plugin is an open source (MIT licensed) re-implementation of Kirbytext.
 
-It correctly parses *most* of the syntax of [Kirbytext](http://getkirby.com/docs/content/text),
-even though the resulting HTML might differ. There is no guarantee of compatibility between the
-two, although a high level of interoperability is one of the design goals.
+#Attribute values: arrays and JSON#
+
+Parameter values don't need to be just strings or numbers. They can be arrays too! You can even
+provide JSON strings - they will be parsed and converted into something that you can use inside
+your snippet. For example, the following code defines a 'slideshow' snippet:
+
+    $config['plugins']['infostreams\\snippets']['snippets'] = array(
+        'slideshow' => function($images, $header="") {
+                       $html = "";
+                       if (!is_null($text)) {
+                         $html .= "<h1>" . $header . "</h1>";
+                       }
+                       if (is_array($images)) {
+                         $html .= "\n<ul>";
+                         foreach ($images as $key=>$value) {
+                           if (is_numeric($key)) {
+                             $filename = $value;
+                             $description = "";
+                           } else {
+                             $filename = $key;
+                             $description = "<span class='description'>" . $value . "</span>";
+                           }
+                           $html .= "\n<li><img src='$filename' />$description</li>";
+                         }
+                         $html .= "\n<ul>";
+                       }
+                       return "<div class='slideshow'>" . $html . "</div>";
+                   }
+    );
+
+This code generates the HTML for a simple slideshow. It can be used as follows:
+
+    (slideshow: [content/images/a.jpg, content/images/b.jpg, content/images/c.jpg] heading: It's a slideshow!)
+
+Here you see how you can provide multiple values for one field. The above example would create a
+slideshow for the images a.jpg, b.jpg and c.jpg.
+
+However, the snippet can also be used to label each image in the slideshow with a description. That
+can be done as follows. For readability, the snippet is wrapped over more than one line:
+
+    (slideshow: [
+        content/images/a.jpg: This is my description,
+        content/images/b.jpg: "This one description, it contains a comma -- so we wrap it in quotes"
+        content/images/c.jpg: However\, if you don't want to quote\, you don't need to
+                              - it could get ugly quickly though
+        ]
+        heading: It's a slideshow!)
+
+The list of images is now a PHP-like array of (key, value) pairs. The 'key' is the filename of the
+image, the 'value' is the description of the image. This way, you can write snippets that only work
+if the author gives it more than one value - such as is the case in a slideshow. It is possible to
+build elaborate data structures using this syntax.
+
+##Escaping text##
+You can observe that in most cases you don't need to surround the description by quotation marks. You
+can if you want to, though -- as is shown in the second description (the one for b.jpg).
+
+As long as the text doesn't contain a comma, colon, or one of '[', '{', '}' or ']', then you don't
+need quotation marks. If it *does* contain one of those, you can 'escape' it by placing a '\\' before
+the offending character, as is shown in the third description (the one for c.jpg).
+
+##JSON##
+Finally, if you don't like the above syntax, you can also just use plain old JSON:
+
+    (slideshow:  {
+         "content\/images\/a.jpg":"This is my description",
+         "content\/images\/b.jpg":"This one description, it contains a comma -- so we wrap it in quotes",
+         "content\/images\/c.jpg":"However, if you don't want to quote, you don't need to - it could get ugly quickly though"
+        }
+        heading: It's a slideshow!)
+
+
+###Kirbytext###
+This plugin is an open source (MIT licensed) re-implementation and extension of [Kirbytext](http://getkirby.com/docs/content/text).
+
+It correctly parses *most* of Kirbytext's syntax, even though the resulting HTML might differ.
+There is no guarantee of compatibility between the two, although a high level of backwards
+interoperability is one of the design goals.

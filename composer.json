@@ -1,7 +1,7 @@
 {
     "name": "infostreams/snippets",
     "type": "phile-plugin",
-    "version": "1.0",
+    "version": "1.2",
     "license": "MIT",
     "description": "A PhileCMS plugin to extend Markdown syntax - so you can easily add links, images, videos or other content to your page",
     "keywords": ["cms", "phile", "philecms", "snippets", "markdown"],

@@ -50,7 +50,6 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -127,7 +126,7 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 		array_unshift($matches, $parameter_names[0]);
 		$params_unsorted = array();
 		for ($i=0; $i<count($matches); $i+=2) {
-			$params_unsorted[$matches[$i]] = $this->parseValue($matches[$i+1]);
+			$params_unsorted[$matches[$i]] = SnippetValue::parse($matches[$i+1]);
 		}
 
 		// put them in the order as they are used in the function,
@@ -156,16 +155,6 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 		return call_user_func_array($callable, $params_sorted);
 	}
 
-	private function parseValue($value) {
-		$value = trim($value);
-		$first = $value[0];
-		$last = $value[max(0, strlen($value)-1)];
-		if (($first == '[' && $last==']') || ($first == '{' && $last=='}')) {
-			return json_decode($value);
-		}
-		return $value;
-	}
-
 	private function addSnippetClass(Snippets $snippet) {
 		// '$snippet' is a class that implements the 'Snippets' interface
 		// -> register all public, non-magic methods as a snippet
@@ -176,8 +165,6 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 			}
 		}
 	}
-
-
 }
 
 ?>

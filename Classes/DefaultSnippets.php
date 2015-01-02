@@ -90,6 +90,9 @@ class DefaultSnippets extends Snippets {
 	 */
 	public function youtube($link, $width=480, $height=360) {
 		$url = parse_url($link);
+		if (!array_key_exists('query', $url)) {
+			return "";
+		}
 		parse_str($url['query'], $query);
 		$is_playlist = array_key_exists('list', $query);
 		if ($is_playlist) {

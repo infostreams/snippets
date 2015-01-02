@@ -85,7 +85,11 @@ class Snippets {
 		$list = array();
 		foreach ($attributes as $name=>$value) {
 			if (!empty($value)) {
-				$list[] = "$name='" . htmlentities($value, ENT_QUOTES, "UTF-8") . "'";
+				if (is_scalar($value)) {
+					$list[] = "$name='" . htmlentities($value, ENT_QUOTES, "UTF-8") . "'";
+				} elseif (is_array($value)) {
+					$list[] = $this->getHtmlAttributes($value);
+				}
 			}
 		}
 		if (count($list)>0) {

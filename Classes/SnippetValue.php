@@ -35,14 +35,15 @@ class SnippetValue {
 		return $obj->parseValue($value);
 	}
 
-	protected function parseValue($value, &$index=0, &$success=true) {
+	protected function parseValue($value, &$index=0, &$success=true, &$array_depth=0) {
 		switch ($this->lookAhead($value, $index)) {
 			case self::TOKEN_BRACKET_OPEN:
 			case self::TOKEN_CURLY_OPEN:
-				return $this->parseArray($value, $index, $success);
+				$array_depth++;
+				return $this->parseArray($value, $index, $success, $array_depth);
 
 			case self::TOKEN_SCALAR:
-				return $this->parseScalar($value, $index, $success);
+				return $this->parseScalar($value, $index, $success, $array_depth);
 
 			case self::TOKEN_END:
 				break;
@@ -90,7 +91,7 @@ class SnippetValue {
 		}
 	}
 
-	protected function parseArray($value, &$index, &$success) {
+	protected function parseArray($value, &$index, &$success, &$array_depth) {
 		$array = array();
 
 		// skip over opening bracket, i.e. '[' or '{'
@@ -111,11 +112,12 @@ class SnippetValue {
 				case self::TOKEN_CURLY_CLOSE:
 				case self::TOKEN_BRACKET_CLOSE:
 					// skip over closing bracket, return result
+					$array_depth--;
 					$this->nextToken($value, $index);
 					break 2;
 
 				default:
-					$x = $this->parseValue($value, $index, $success);
+					$x = $this->parseValue($value, $index, $success, $array_depth);
 					if (!$x) {
 						return null;
 					}
@@ -129,7 +131,7 @@ class SnippetValue {
 							$this->nextToken($value, $index);
 
 							// and parse what comes next
-							$v = $this->parseValue($value, $index, $success);
+							$v = $this->parseValue($value, $index, $success, $array_depth);
 							$array[$x] = $v;
 							break;
 						}
@@ -141,7 +143,7 @@ class SnippetValue {
 		return $array;
 	}
 
-	protected function parseScalar($value, &$index, &$success) {
+	protected function parseScalar($value, &$index, &$success, &$array_depth) {
 		$this->eatWhitespace($value, $index);
 
 		$is_quoted = $value[$index]=='\'' || $value[$index]=='"';
@@ -156,8 +158,13 @@ class SnippetValue {
 			$this->nextToken($value, $index);
 		} else {
 			// the value is not quoted
-			// we terminate on the following non-escaped characters: ,:[]{}
-			$terminate_characters = array(',', ':', '[', ']', '{', '}');
+			if ($array_depth>0) {
+				// we are inside an array - terminate on the following non-escaped characters: ,:[]{}
+				$terminate_characters = array(',', ':', '[', ']', '{', '}');
+			} else {
+				// we are *not* inside an array - terminate on ',' only
+				$terminate_characters = array(',');
+			}
 		}
 
 		$escape_char = '\\';

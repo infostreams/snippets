@@ -136,9 +136,13 @@ Include files from your own site or from external sites:
     (file: products/brochure.pdf)
     (file: https://bitcoin.org/bitcoin.pdf)
 
-Specify a text for the link
+Specify a text for the link:
 
     (file: products/brochure.pdf text:our brochure)
+
+Force download of the file (limited browser support unfortunately):
+
+    (file: products/brochure.pdf download:true)
 
 Specify a CSS class:
 

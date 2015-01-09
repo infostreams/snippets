@@ -75,13 +75,19 @@ class DefaultSnippets extends Snippets {
 	/**
 	 * Implements the 'file' snippet
 	 */
-	public function file($file, $text=null, $class=null) {
+	public function file($file, $text=null, $download=null, $class=null) {
 		if (is_null($text)) {
 			// if no text is given, we use the text originally provided by the user
 			$text = $file;
 		}
 		$file = $this->getLink($file);
 		$attributes = $this->getHtmlAttributes(array('class'=>$class));
+
+		if ($this->isTrue($download)) {
+			// try to force download - http://stackoverflow.com/a/21527905/426224
+			$attributes .= " download target='_blank'";
+		}
+
 		return "<a href='$file'$attributes>$text</a>";
 	}
 

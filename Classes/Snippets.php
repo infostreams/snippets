@@ -34,49 +34,62 @@ class Snippets {
 	 * @return string
 	 */
 	protected function getLink($link) {
+		$page = new \Phile\Repository\Page();
+		$linked_page = $page->findByPath($link);
+
+		if ($linked_page) {
+			// the user linked to an internal page
+			return \Phile\Utility::getBaseUrl() . '/'. $linked_page->getUrl();
+		}
+
+		$file = ROOT_DIR . DIRECTORY_SEPARATOR . $link;
+		if (file_exists($file)) {
+			// the user linked to an internal file
+			return \Phile\Utility::getBaseUrl() . '/' . $link;
+		}
+
+		// it's not an internal page, it's not an internal file -
+		// let's see if it's (at least) a somewhat valid URL
 		$url_parts = parse_url($link);
 
 		if (is_array($url_parts)) {
 			if (!array_key_exists("scheme", $url_parts)) {
-				// we have a partially incomplete URL here
-				// -> see if we just have to add 'http://'
-				//    or if we are dealing with an internal link
+				// it doesn't have a http:// or https:// or similar prefix.
+				// This could mean the user provided something like: (link: cnn.com)
+				// -> check if the first part of the link looks like a domain name
 				$p = explode('/', $url_parts["path"]);
 				$domain = $p[0];
+
 				if ($this->isValidDomainName($domain)) {
-					// the first part of the link is a valid domain name
+					// the first part of the link looks like a valid domain name
 					// -> just prepend 'http://' and continue
 					return "http://$link";
-				} else {
-					// this is an internal link
-					return \Phile\Utility::getBaseUrl() . '/'. ltrim($link, '/');
 				}
 			}
 		}
 
-		// PHP could not parse the link, which means it's probably invalid. However,
-		// in this case, we just return whatever the user typed.
+		// If we get to this point, we just return whatever the user typed.
 		return $link;
 	}
 
 	/**
-	 * Checks if the given string is a valid domain name
+	 * Checks if the given string looks like a valid domain name
 	 * @param $domain_name
 	 * @return bool
 	 */
-	protected function isValidDomainName($domain_name)
-	{
+	protected function isValidDomainName($domain_name) {
 		return (preg_match('/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i', $domain_name) //valid chars check
 			&& preg_match('/^.{1,253}$/', $domain_name) //overall length check
 			&& preg_match('/^[^\.]{1,63}(\.[^\.]{1,63})*$/', $domain_name)   ) //length of each label
-		&& count(explode('.', $domain_name))>1;
+			&& count(explode('.', $domain_name))>1;
 	}
-
 
 	/**
 	 * Turns a list of attributes provided as an associative array into an equivalent string
 	 * of HTML attributes that can be inserted into a HTML tag. Skips any attributes that
 	 * are considered empty.
+	 *
+	 * For example uses, please see the DefaultSnippets class.
 	 *
 	 * @param $attributes
 	 * @return string

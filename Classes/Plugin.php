@@ -114,7 +114,9 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 
 		// extract parameter values from the provided attributes
 		if (count($look_for)>0) {
-			$regexp = '#(' . implode($look_for, '|') . '):#ims';
+			// only match parameter values that are *NOT* part of an array
+			$negative_lookahead = '(?![^{]*})(?![^\[]*\])'; // http://stackoverflow.com/a/19415051/426224
+			$regexp = '#(' . implode($look_for, '|') . ')' . $negative_lookahead . ':#ims';
 			$matches = preg_split($regexp, $attributes, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 		} else {
 			// no additional parameters (except for the required first parameter) were provided

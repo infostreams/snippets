@@ -71,6 +71,15 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 		if (count($snippets)>0) {
 			$tags = array_keys($snippets);
 
+			// If there are tags that contain an underscore (for example: youtube_popup),
+			// then add a synonym so they can be accessed with a dash instead of an underscore
+			// as well (so: youtube-popup). Purely for aesthetic reasons.
+			foreach ($tags as $t) {
+				if (strpos($t, "_")!==false) {
+					$tags[] = str_replace('_', '-', $t);
+				}
+			}
+
 			$matches = array();
 			$regexp = '#\((' . implode($tags, '|') . ')\:\s?(.*?)\)#ims'; // options: case independent, multi-line, and '/s' includes newline
 
@@ -80,6 +89,12 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 				foreach ($tags as $i=>$tag) {
 					$full_snippet = $matches[0][$i];
 					$attributes = $matches[2][$i];
+
+					if (!array_key_exists($tag, $snippets)) {
+						// make sure synonyms map back to their original names
+						// (i.e. 'youtube-popup' => 'youtube_popup', see above)
+						$tag = str_replace("-", "_", $tag);
+					}
 
 					$output = $this->render($snippets[$tag], $attributes);
 

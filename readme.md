@@ -296,10 +296,14 @@ class (which gives you access to some common functionality). Then, make sure tha
         public function scroller($pictures) {
             // ...
         }
+
+        public function youtube_popup($link) {
+            // ...
+        }
     }
 
-Now, you can add the 'skype', 'facebook' and 'scroller' Snippets (and any future ones you define)
-by adding the following code to PhileCMS's configuration file:
+Now, you can add the `skype`, `facebook`, `scroller` and `youtube_popup` snippets (and any future
+ones you define) by adding the following code to PhileCMS's configuration file:
 
     $config['plugins']['infostreams\\snippets']['snippets'] = array(
         new MySnippets(),
@@ -307,6 +311,9 @@ by adding the following code to PhileCMS's configuration file:
         'yet_another_snippet' => array(new MyOtherClass(), 'method')
     );
 
+For convenience and aesthetic reasons, snippets that have an underscore in their name (such as
+`youtube_popup`) can also be used with a dash instead. So instead of writing `(youtube_popup: ....)`
+you can also write `(youtube-popup: ....)`.
 
 #Attribute values: arrays and JSON#
 

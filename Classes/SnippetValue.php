@@ -118,7 +118,7 @@ class SnippetValue {
 
 				default:
 					$x = $this->parseValue($value, $index, $success, $array_depth);
-					if (!$x) {
+					if (is_null($x)) {
 						return null;
 					}
 

@@ -115,7 +115,7 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 						$is_escaped = false;
 					}
 
-					$end = $index + 1;
+					$end = $index;
 
 					$full_snippet = substr($content, $start, ($end - $start));
 					$attributes = rtrim(trim(str_replace($slice, "", $full_snippet)), ')');

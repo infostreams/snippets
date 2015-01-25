@@ -81,14 +81,44 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 			}
 
 			$matches = array();
-			$regexp = '#\((' . implode($tags, '|') . ')\:\s?(.*?)\)#ims'; // options: case independent, multi-line, and '/s' includes newline
+			$regexp = '#\((' . implode($tags, '|') . ')\s*?\:#ims'; // options: case independent, multi-line, and '/s' includes newline
 
+			// Go and look for the closing ')'. I don't know how to do this with regexp because that
+			// last ')' needs to be unquoted (i.e. NOT preceded by a '\') AND it needs to NOT be
+			// part of a string or other value
 			if ($count = preg_match_all($regexp, $content, $matches) > 0) {
+				$tags = $matches[0];
+				foreach ($tags as $i=>$slice) {
+					$tag = $matches[1][$i];
+					$max = strlen($content); // don't move this outside of 'foreach' loop
+					$start = $index = strpos($content, $slice);
+					$is_escaped = $between_quotes = $found_end = false;
 
-				$tags = $matches[1];
-				foreach ($tags as $i=>$tag) {
-					$full_snippet = $matches[0][$i];
-					$attributes = $matches[2][$i];
+					while ($index++ < $max && !$found_end) {
+						$char = $content[$index];
+
+						if ($char == '\\' && !$is_escaped) {
+							$is_escaped = true;
+							continue;
+						}
+
+						if ($char == '"' && !$is_escaped) {
+							$between_quotes = !$between_quotes;
+							continue;
+						}
+
+						if ($char == ')' && !$is_escaped && !$between_quotes) {
+							$found_end = true;
+							continue;
+						}
+
+						$is_escaped = false;
+					}
+
+					$end = $index + 1;
+
+					$full_snippet = substr($content, $start, ($end - $start));
+					$attributes = rtrim(trim(str_replace($slice, "", $full_snippet)), ')');
 
 					if (!array_key_exists($tag, $snippets)) {
 						// make sure synonyms map back to their original names

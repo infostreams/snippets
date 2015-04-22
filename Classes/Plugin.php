@@ -2,10 +2,14 @@
 namespace Phile\Plugin\Infostreams\Snippets;
 
 class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\EventObserverInterface {
+	protected $events = ['before_parse_content' => 'on']; // Register event (Phile >= 1.5)
 	protected $snippets = array();
 
 	public function __construct() {
-		\Phile\Event::registerEvent('before_parse_content', $this);
+		if (!class_exists('\Phile\Core\Event')) {
+			// Phile < 1.5 => register event
+			\Phile\Event::registerEvent('before_parse_content', $this);
+		}
 	}
 
 	public function on($eventKey, $data = null) {
@@ -31,7 +35,7 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 	}
 
 	/**
-	 * inject settings
+	 * inject settings (for PhileCMS < 1.5)
 	 *
 	 * @param array $settings
 	 */
@@ -50,6 +54,16 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 				}
 			}
 		}
+	}
+
+	/**
+	 * Initialize plugin (PhileCMS >= 1.5)
+	 *
+	 * @param string $pluginKey
+	 */
+	public function initializePlugin($pluginKey) {
+		parent::initializePlugin($pluginKey);
+		$this->injectSettings($this->settings);
 	}
 
 	/**

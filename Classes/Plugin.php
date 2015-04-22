@@ -92,6 +92,13 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 					$tag = $matches[1][$i];
 					$max = strlen($content); // don't move this outside of 'foreach' loop
 					$start = $index = strpos($content, $slice);
+
+					// if the tag is no longer there, then continue
+					if ($start === false) {
+						// (this can happen if the exact same tag appears twice, and it has already
+						// been replaced earlier in the process)
+						continue;
+					}
 					$is_escaped = $between_quotes = $found_end = false;
 
 					while ($index++ < $max && !$found_end) {

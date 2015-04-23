@@ -279,7 +279,9 @@ Then, add the 'skype' snippet to the Snippets config:
 
 It is also possible to define a class with multiple Snippets and add them all at once.
 First, define your class, and make sure it extends the ```\Phile\Plugin\Infostreams\Snippets\Snippets```
-class (which gives you access to some common functionality). Then, make sure that it is included by PhileCMS.
+class (which gives you access to some common functionality). Then, make sure that it is included by 
+PhileCMS. There's a step-by-step guide [here](https://github.com/infostreams/snippets/issues/2#issuecomment-95512554) 
+that explains how to do that properly.
 
     class MySnippets extends \Phile\Plugin\Infostreams\Snippets\Snippets {
         public function skype($name, $action="call", $text=null) {

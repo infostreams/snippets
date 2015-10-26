@@ -94,6 +94,24 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 				}
 			}
 
+			// Loop through content and check for fenced code blocks
+			// and simply replace parentheses with brackets
+			// to prevent them from being processed as snippets
+			$fixed_strips = array();
+			$strip_matches = array();
+			$strip_regexp = '/```(.*?)```/is';
+			if($strip_count = preg_match_all($strip_regexp, $content, $strip_matches) > 0)
+			{
+				$strips = $strip_matches[0];
+				foreach ($strips as $strip)
+				{
+					$fixed_strip = str_replace('(', '[', $strip);
+					$fixed_strip = str_replace(')', ']', $fixed_strip);
+					$content = str_replace($strip, $fixed_strip, $content);
+					$fixed_strips[] = $fixed_strip;
+				}
+			}
+
 			$matches = array();
 			$regexp = '#\((' . implode($tags, '|') . ')\s*?\:#ims'; // options: case independent, multi-line, and '/s' includes newline
 
@@ -152,6 +170,15 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 					$content = str_replace($full_snippet, $output, $content);
 				}
 			}
+
+			// Put the escaped fenced code blocks back to 'normal'
+			foreach ($fixed_strips as $strip)
+			{
+				$fixed_strip = str_replace('[', '(', $strip);
+				$fixed_strip = str_replace(']', ')', $fixed_strip);
+				$content = str_replace($strip, $fixed_strip, $content);
+			}
+
 		}
 
 		return $content;

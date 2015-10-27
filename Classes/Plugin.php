@@ -95,18 +95,20 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 			}
 
 			// Loop through content and check for fenced code blocks
-			// and simply replace parentheses with brackets
+			// and simply replace parentheses with a special marker
 			// to prevent them from being processed as snippets
 			$fixed_strips = array();
 			$strip_matches = array();
 			$strip_regexp = '/```(.*?)```/is';
-			if($strip_count = preg_match_all($strip_regexp, $content, $strip_matches) > 0)
-			{
+			$i = 0;
+			do { // try to pick a unique marker
+				$marker = "_snippet_marker_" . time() . mt_rand(1000, 9999) . "_";
+			} while ($i++<100 && strpos($content, $marker)!==false);
+			if($strip_count = preg_match_all($strip_regexp, $content, $strip_matches) > 0) {
 				$strips = $strip_matches[0];
-				foreach ($strips as $strip)
-				{
-					$fixed_strip = str_replace('(', '[SnIpp3tzW0zHeAr[', $strip);
-					$fixed_strip = str_replace(')', ']SnIpp3tzW0zHeAr]', $fixed_strip);
+				foreach ($strips as $strip) {
+					$fixed_strip = str_replace('(', "[{$marker}[", $strip);
+					$fixed_strip = str_replace(')', "]{$marker}]", $fixed_strip);
 					$content = str_replace($strip, $fixed_strip, $content);
 					$fixed_strips[] = $fixed_strip;
 				}
@@ -172,10 +174,9 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 			}
 
 			// Put the escaped fenced code blocks back to 'normal'
-			foreach ($fixed_strips as $strip)
-			{
-				$fixed_strip = str_replace('[SnIpp3tzW0zHeAr[', '(', $strip);
-				$fixed_strip = str_replace(']SnIpp3tzW0zHeAr]', ')', $fixed_strip);
+			foreach ($fixed_strips as $strip) {
+				$fixed_strip = str_replace("[{$marker}[", '(', $strip);
+				$fixed_strip = str_replace("]{$marker}]", ')', $fixed_strip);
 				$content = str_replace($strip, $fixed_strip, $content);
 			}
 
@@ -261,5 +262,3 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 		}
 	}
 }
-
-?>

@@ -105,8 +105,8 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 				$strips = $strip_matches[0];
 				foreach ($strips as $strip)
 				{
-					$fixed_strip = str_replace('(', '[', $strip);
-					$fixed_strip = str_replace(')', ']', $fixed_strip);
+					$fixed_strip = str_replace('(', '[SnIpp3tzW0zHeAr[', $strip);
+					$fixed_strip = str_replace(')', ']SnIpp3tzW0zHeAr]', $fixed_strip);
 					$content = str_replace($strip, $fixed_strip, $content);
 					$fixed_strips[] = $fixed_strip;
 				}
@@ -174,8 +174,8 @@ class Plugin extends \Phile\Plugin\AbstractPlugin implements \Phile\Gateway\Even
 			// Put the escaped fenced code blocks back to 'normal'
 			foreach ($fixed_strips as $strip)
 			{
-				$fixed_strip = str_replace('[', '(', $strip);
-				$fixed_strip = str_replace(']', ')', $fixed_strip);
+				$fixed_strip = str_replace('[SnIpp3tzW0zHeAr[', '(', $strip);
+				$fixed_strip = str_replace(']SnIpp3tzW0zHeAr]', ')', $fixed_strip);
 				$content = str_replace($strip, $fixed_strip, $content);
 			}
 

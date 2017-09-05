@@ -1,4 +1,4 @@
-#Snippets#
+# Snippets
 
 A [PhileCMS](https://github.com/PhileCMS/Phile) plugin that extends the Markdown syntax to
 easily add links, images, videos or other content to your page. These 'snippets' are easy to
@@ -7,26 +7,26 @@ add and customize, and the plugin comes with a large selection of useful snippet
 This plugin works with the default Markdown parser, but it should also work with any of the other
 plugins that offer Markdown alternatives. It should even work if applied to regular HTML files.
 
-##Installation##
+## Installation
 
-###With composer###
+### With composer
 
     php composer.phar require infostreams/snippets:*
 
-###Download###
+### Download 
 
 * Install [Phile](https://github.com/PhileCMS/Phile)
 * Clone this repo into plugins/infostreams/snippets
 
 
-###Activation###
+### Activation
 
 After you have installed the plugin. You need to add the following line to your config.php file:
 
     $config['plugins']['infostreams\\snippets'] = array('active' => true);
 
 
-##What it does##
+## What it does
 
 With this plugin you can include pre-defined HTML snippets in your Markdown. This means you can
 write things like:
@@ -48,13 +48,13 @@ Snippets you can add these elements easily. You can use one of the many included
 you can easily define new ones yourself.
 
 
-##Supported syntax##
+## Supported syntax
 
 **General note**: snippet tags can be specified over multiple lines, and attribute values can
 be scalar values (strings or integers) or lists (arrays) of values - in which case they will be
 parsed as such.
 
-###Links###
+### Links
 You can link to external sites and to pages on your own site:
 
     (link: cnn.com)
@@ -80,7 +80,7 @@ It is possible to combine these attributes, or to leave attributes out:
 
     (link: cnn.com class: my-css-class popup:true text:CNN title:Click to go to the CNN homepage)
 
-###Email addresses###
+### Email addresses
 You can link to email addresses like this:
 
     (email: someone@example.com)
@@ -97,7 +97,7 @@ You can specify a custom CSS class for styling purposes:
 
     (email: someone@example.com class: my-css-class)
 
-###Images###
+### Images
 You can include images from your own site, or from external sites:
 
     (image: products/mastergrill5000/grilling.jpg)
@@ -129,7 +129,7 @@ Add a 'srcset' attribute to deal with responsive images:
 
     (image: products/mastergrill5000/grilling.jpg srcset:products/mastergrill5000/grilling@2x.jpg 2x)
 
-###Files###
+### Files
 
 Include files from your own site or from external sites:
 
@@ -148,7 +148,7 @@ Specify a CSS class:
 
     (file: products/brochure.pdf class:highlight)
 
-###YouTube videos###
+### YouTube videos
 
 Embed a YouTube video in your document:
 
@@ -159,7 +159,7 @@ Specify width and/or height:
     (youtube: https://www.youtube.com/watch?v=mSB71jNq-yQ width:640)
     (youtube: https://www.youtube.com/watch?v=mSB71jNq-yQ width:640 height:480)
 
-###Vimeo videos###
+### Vimeo videos
 
 Embed a Vimeo video in your document:
 
@@ -176,7 +176,7 @@ Options to include portrait, title and byline:
     (vimeo: http://vimeo.com/63968108 portrait:false byline:false)
     (vimeo: http://vimeo.com/63968108 portrait:false byline:false title:true)
 
-###Twitter###
+### Twitter
 
 Embed a link to a Twitter profile:
 
@@ -198,7 +198,7 @@ Specify a CSS class:
 
     (twitter: @nytimes class:twitter-button)
 
-###Gist###
+### Gist
 
 Embed a Github Gist:
 
@@ -208,7 +208,7 @@ Display a specific file in that gist:
 
     (gist: https://gist.github.com/1 file: gistfile1.txt)
 
-###Telephone numbers###
+### Telephone numbers
 Add a link to a telephone number:
 
     (tel: 555-0100)
@@ -222,12 +222,12 @@ You can specify a custom CSS class for styling purposes:
     (tel: 555-0100 class:phone)
 
 
-#Adding your own snippets#
+# Adding your own snippets
 
 It is very easy to define your own snippets. Most likely, you will want to do this through your
 PhileCMS configuration file:
 
-##Simple case##
+## Simple case
 Example:
 
     $config['plugins']['infostreams\\snippets']['snippets'] = array(
@@ -256,7 +256,7 @@ This would produce the following HTML:
 
     <a href='skype:my.account.on.skype?chat'>Chat to me on Skype!</a>
 
-##Using existing functions##
+## Using existing functions
 
 First, define your snippet in a class somewhere, and make sure it gets included:
 
@@ -275,7 +275,7 @@ Then, add the 'skype' snippet to the Snippets config:
         'skype' => array(new MySnippets(), 'skype'),
     );
 
-##Using a Snippets class##
+## Using a Snippets class
 
 It is also possible to define a class with multiple Snippets and add them all at once.
 First, define your class, and make sure it extends the ```\Phile\Plugin\Infostreams\Snippets\Snippets```
@@ -317,7 +317,7 @@ For convenience and aesthetic reasons, snippets that have an underscore in their
 `youtube_popup`) can also be used with a dash instead. So instead of writing `(youtube_popup: ....)`
 you can also write `(youtube-popup: ....)`.
 
-#Attribute values: arrays and JSON#
+# Attribute values: arrays and JSON
 
 Parameter values don't need to be just strings or numbers. They can be arrays too! You can even
 provide JSON strings - they will be parsed and converted into something that you can use inside
@@ -370,7 +370,7 @@ image, the 'value' is the description of the image. This way, you can write snip
 if the author gives it more than one value - such as is the case in a slideshow. It is possible to
 build elaborate data structures using this syntax.
 
-##Escaping text##
+## Escaping text
 You can observe that in most cases you don't need to surround the description by quotation marks. You
 can if you want to, though -- as is shown in the second description (the one for b.jpg).
 
@@ -378,7 +378,7 @@ As long as the text doesn't contain a comma, colon, or one of '[', '{', '}' or '
 need quotation marks. If it *does* contain one of those, you can 'escape' it by placing a '\\' before
 the offending character, as is shown in the third description (the one for c.jpg).
 
-##JSON##
+## JSON
 Finally, if you don't like the above syntax, you can also just use plain old JSON:
 
     (slideshow:  {
@@ -389,7 +389,7 @@ Finally, if you don't like the above syntax, you can also just use plain old JSO
         heading: It's a slideshow!)
 
 
-###Kirbytext###
+### Kirbytext
 This plugin is an open source (MIT licensed) re-implementation and extension of [Kirbytext](http://getkirby.com/docs/content/text).
 
 It correctly parses *most* of Kirbytext's syntax, even though the resulting HTML might differ.
